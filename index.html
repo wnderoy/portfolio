@@ -125,6 +125,10 @@
 </head>
 <body>
 
+<noscript>
+    this system requires javascript to render structurally verified content. please enable javascript or view the raw source files on github.
+</noscript>
+
 <div class="header" id="headerNav"></div>
 <div class="main-area">
     <div class="sidebar" id="sidebarNav"></div>
@@ -132,38 +136,30 @@
 </div>
 
 <script>
-    const portfolioData = {
-        "Oz Yosef Yohay": {
-            "README.md": "![Logo](https://picsum.photos/800/200?grayscale)\n\n# oz yosef yohay\n\nsystems engineer and software developer\n\n## contact\n\nemail: demo@example.com\n\nlocation: israel"
-        },
-        "VERIFIED*": {
-            "README.md": "![Verified](https://picsum.photos/800/200?grayscale&random=1)\n\n# formal verification projects\n\nthis section contains proofs and mathematically verified software models",
-            "proof.dfy": "method Abs(x: int) returns (y: int)\n  ensures 0 <= y\n  ensures 0 <= x ==> y == x\n  ensures x < 0 ==> y == -x\n{\n  if x < 0 {\n    return -x;\n  } else {\n    return x;\n  }\n}"
-        },
-        "C++": {
-            "README.md": "![Cpp](https://picsum.photos/800/200?grayscale&random=2)\n\n# c plus plus systems\n\nrugged architecture and memory management examples",
-            "main.cpp": "#include <iostream>\n\nint main() {\n    std::cout << \"system initialized\" << std::endl;\n    return 0;\n}"
-        },
-        "PHARMGURD": {
-            "README.md": "![Pharm](https://picsum.photos/800/200?grayscale&random=3)\n\n# pharmgurd nfc project\n\nsmart medication tracking system documentation",
-            "architecture.txt": "utilizing nfc tags for supply chain verification and dosage adherence"
-        },
-        "HOMEWORK": {
-            "README.md": "![Homework](https://picsum.photos/800/200?grayscale&random=4)\n\n# academic assignments\n\nselected algorithms and data structures",
-            "math.txt": "teaching materials for advanced student groups"
+    let portfolioData = {};
+    let currentCategory = "";
+    let currentFile = "";
+
+    // fetches the compiled local json database and initializes the user interface
+    async function initApp() {
+        try {
+            const response = await fetch('data.json');
+            portfolioData = await response.json();
+            
+            const categories = Object.keys(portfolioData);
+            if (categories.length > 0) {
+                currentCategory = categories[0];
+                renderHeader();
+                selectCategory(currentCategory);
+            } else {
+                document.getElementById('contentView').innerHTML = "database is empty";
+            }
+        } catch (error) {
+            document.getElementById('contentView').innerHTML = "failed to load data json. ensure you have executed the python build script.";
         }
-    };
-
-    let currentCategory = "Oz Yosef Yohay";
-    let currentFile = "README.md";
-
-    // initializes the application and renders the first active view
-    function initApp() {
-        renderHeader();
-        selectCategory(currentCategory);
     }
 
-    // builds the top navigation bar using category names
+    // renders the top navigation buttons dynamically based on available categories
     function renderHeader() {
         const header = document.getElementById('headerNav');
         header.innerHTML = '';
@@ -182,7 +178,7 @@
         });
     }
 
-    // handles category selection and updates the user interface state
+    // handles the state change when a user clicks a different top category
     function selectCategory(category) {
         currentCategory = category;
         renderHeader();
@@ -192,6 +188,8 @@
             currentFile = null;
         } else if (files.includes('README.md')) {
             currentFile = 'README.md';
+        } else if (files.includes('missing.txt')) {
+            currentFile = 'missing.txt';
         } else {
             currentFile = files[0];
         }
@@ -200,7 +198,7 @@
         renderContent();
     }
 
-    // builds the file list sidebar for the currently active category
+    // renders the vertical sidebar buttons for the currently active category
     function renderSidebar() {
         const sidebar = document.getElementById('sidebarNav');
         sidebar.innerHTML = '';
@@ -219,14 +217,13 @@
         });
     }
 
-    // updates the active file state and triggers the main display
+    // updates the active file state and forces the main viewing area to refresh
     function selectFile(file) {
         currentFile = file;
         renderSidebar();
         renderContent();
     }
 
-    // parses markdown or code and injects it into the viewing container safely
     function renderContent() {
         const view = document.getElementById('contentView');
         if (!currentFile) {
@@ -236,21 +233,28 @@
         
         const content = portfolioData[currentCategory][currentFile];
         
-        if (currentFile.endsWith('.md')) {
+        if (currentFile.endsWith('.pdf')) {
+            const viewerurl = 'https://docs.google.com/viewer?url=' + encodeURIComponent(content) + '&embedded=true';
+            view.innerHTML = '<iframe src="' + viewerurl + '" width="100%" height="800px" style="border:none;"></iframe>';
+        } else if (currentFile.endsWith('.md')) {
             view.innerHTML = marked.parse(content);
-        } else if (currentFile.endsWith('.txt')) {
-            view.innerHTML = '<pre>' + content + '</pre>';
+        } else if (currentFile.match(/\.(png|jpg|jpeg|gif)$/i)) {
+            view.innerHTML = '<img src="' + content + '">';
+        } else if (currentFile.endsWith('.html')) {
+            view.innerHTML = '<pre><code>' + content.replace(/</g, "&lt;") + '</code></pre>';
         } else {
-            const extension = currentFile.split('.').pop();
-            const formatted = '<pre><code class="language-' + extension + '">' + content + '</code></pre>';
-            view.innerHTML = formatted;
+            // fallback download link only if it is exactly a single web address without newlines
+            if (content.startsWith('http') && !content.includes('\n') && !content.includes(' ')) {
+                view.innerHTML = '<a href="' + content + '" target="_blank">Download ' + currentFile + '</a>';
+            } else {
+                view.innerHTML = '<pre>' + content + '</pre>';
+            }
         }
         
         if (typeof hljs !== 'undefined') {
             hljs.highlightAll();
         }
     }
-
     initApp();
 </script>
 </body>
