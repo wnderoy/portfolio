@@ -8,11 +8,21 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <style>
+    :root {
+        --bg-main: #fcfcfc;
+        --bg-content: #fcfcfc;
+        --bg-code: #f0f0f0;
+        --text-main: #1b1b1b;
+        --text-secondary: #555555;
+        --text-active: #aa3939;
+        --border-color: #e0e0e0;
+    }
+
     body {
         margin: 0;
         font-family: monospace;
-        background-color: #f8f8f8;
-        color: #2b2b2b;
+        background-color: var(--bg-main);
+        color: var(--text-main);
         display: flex;
         flex-direction: column;
         height: 100vh;
@@ -21,12 +31,13 @@
     .header {
         display: flex;
         gap: 20px;
-        padding: 15px 20px;
-        background-color: #f8f8f8;
-        border-bottom: 1px solid #e0e0e0;
+        padding: 10px 15px;
+        background-color: none;
+        border-bottom: none;
         overflow-x: auto;
         white-space: nowrap;
         scrollbar-width: none;
+        font-family: 'Courier New', monospace;
     }
     .header::-webkit-scrollbar {
         display: none;
@@ -34,14 +45,14 @@
     .header button {
         background: none;
         border: none;
-        font-family: monospace;
+        font-family: inherit;
         font-size: 16px;
-        color: #555;
+        color: var(--text-secondary);
         cursor: pointer;
         padding: 0;
     }
     .header button.active {
-        color: #000;
+        color: var(--text-active);
     }
     .main-area {
         display: flex;
@@ -49,40 +60,41 @@
         overflow: hidden;
     }
     .sidebar {
-        width: 250px;
-        background-color: #f8f8f8;
-        border-right: 1px solid #e0e0e0;
+        width: 150px;
+        background-color: transparent;
+        border-right: none;
         display: flex;
         flex-direction: column;
         padding: 15px 20px;
         gap: 10px;
         overflow-y: auto;
+        font-family: 'Courier New', monospace;
     }
     .sidebar button {
         background: none;
         border: none;
-        font-family: monospace;
+        font-family: inherit;
         font-size: 14px;
-        color: #555;
+        color: var(--text-secondary);
         cursor: pointer;
         text-align: left;
         padding: 0;
     }
     .sidebar button.active {
-        color: #000;
+        color: var(--text-active);
     }
     .content-area {
         flex: 1;
         padding: 40px;
         overflow-y: auto;
-        background-color: #fcfcfc;
+        background-color: var(--bg-content);
     }
     img {
         max-width: 100%;
         height: auto;
     }
     pre {
-        background-color: #f0f0f0;
+        background-color: var(--bg-code);
         padding: 15px;
         overflow-x: auto;
     }
@@ -95,7 +107,7 @@
             width: 100%;
             flex-direction: row;
             border-right: none;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid var(--border-color);
             overflow-x: auto;
             white-space: nowrap;
             padding: 10px 20px;
@@ -122,36 +134,36 @@
 <script>
     const portfolioData = {
         "Oz Yosef Yohay": {
-            "README.md": "![Logo](https://picsum.photos/800/200?grayscale)\n\n# oz yosef yohay\n\nsystems engineer and software developer.\n\n## contact\n\nemail: demo@example.com\n\nlocation: israel"
+            "README.md": "![Logo](https://picsum.photos/800/200?grayscale)\n\n# oz yosef yohay\n\nsystems engineer and software developer\n\n## contact\n\nemail: demo@example.com\n\nlocation: israel"
         },
         "VERIFIED*": {
-            "README.md": "![Verified](https://picsum.photos/800/200?grayscale&random=1)\n\n# formal verification projects\n\nthis section contains proofs and mathematically verified software models.",
+            "README.md": "![Verified](https://picsum.photos/800/200?grayscale&random=1)\n\n# formal verification projects\n\nthis section contains proofs and mathematically verified software models",
             "proof.dfy": "method Abs(x: int) returns (y: int)\n  ensures 0 <= y\n  ensures 0 <= x ==> y == x\n  ensures x < 0 ==> y == -x\n{\n  if x < 0 {\n    return -x;\n  } else {\n    return x;\n  }\n}"
         },
         "C++": {
-            "README.md": "![Cpp](https://picsum.photos/800/200?grayscale&random=2)\n\n# c plus plus systems\n\nrugged architecture and memory management examples.",
+            "README.md": "![Cpp](https://picsum.photos/800/200?grayscale&random=2)\n\n# c plus plus systems\n\nrugged architecture and memory management examples",
             "main.cpp": "#include <iostream>\n\nint main() {\n    std::cout << \"system initialized\" << std::endl;\n    return 0;\n}"
         },
         "PHARMGURD": {
-            "README.md": "![Pharm](https://picsum.photos/800/200?grayscale&random=3)\n\n# pharmgurd nfc project\n\nsmart medication tracking system documentation.",
-            "architecture.txt": "utilizing nfc tags for supply chain verification and dosage adherence."
+            "README.md": "![Pharm](https://picsum.photos/800/200?grayscale&random=3)\n\n# pharmgurd nfc project\n\nsmart medication tracking system documentation",
+            "architecture.txt": "utilizing nfc tags for supply chain verification and dosage adherence"
         },
         "HOMEWORK": {
-            "README.md": "![Homework](https://picsum.photos/800/200?grayscale&random=4)\n\n# academic assignments\n\nselected algorithms and data structures.",
-            "math.txt": "teaching materials for advanced student groups."
+            "README.md": "![Homework](https://picsum.photos/800/200?grayscale&random=4)\n\n# academic assignments\n\nselected algorithms and data structures",
+            "math.txt": "teaching materials for advanced student groups"
         }
     };
 
     let currentCategory = "Oz Yosef Yohay";
     let currentFile = "README.md";
 
-    // initializes the application and renders the initial state
+    // initializes the application and renders the first active view
     function initApp() {
         renderHeader();
         selectCategory(currentCategory);
     }
 
-    // builds the top navigation bar with category names
+    // builds the top navigation bar using category names
     function renderHeader() {
         const header = document.getElementById('headerNav');
         header.innerHTML = '';
@@ -170,7 +182,7 @@
         });
     }
 
-    // handles category selection and updates the user interface
+    // handles category selection and updates the user interface state
     function selectCategory(category) {
         currentCategory = category;
         renderHeader();
@@ -188,7 +200,7 @@
         renderContent();
     }
 
-    // builds the file list sidebar for the active category
+    // builds the file list sidebar for the currently active category
     function renderSidebar() {
         const sidebar = document.getElementById('sidebarNav');
         sidebar.innerHTML = '';
@@ -207,14 +219,14 @@
         });
     }
 
-    // handles file selection and updates the main view
+    // updates the active file state and triggers the main display
     function selectFile(file) {
         currentFile = file;
         renderSidebar();
         renderContent();
     }
 
-    // parses markdown or code and injects it into the viewing area
+    // parses markdown or code and injects it into the viewing container safely
     function renderContent() {
         const view = document.getElementById('contentView');
         if (!currentFile) {
@@ -234,7 +246,9 @@
             view.innerHTML = formatted;
         }
         
-        hljs.highlightAll();
+        if (typeof hljs !== 'undefined') {
+            hljs.highlightAll();
+        }
     }
 
     initApp();
